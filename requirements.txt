@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+pydantic[email]
+ulid-py
+python-dotenv
+pytest
+PyYAML
+pylint
