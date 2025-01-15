@@ -27,6 +27,7 @@ services:
     networks:
       - orders_network
     volumes:
+      - ./configs/migrations:/docker-entrypoint-initdb.d
       - mongo_data:/data/db
     restart: always
 
