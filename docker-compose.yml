@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: order-service
+    ports:
+      - "7000:7000"
+    depends_on:
+      - order-database
+    networks:
+      - orders_network
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - MONGO_DB=${MONGO_DB}
+
+  order-database:
+    image: mongo:latest
+    container_name: order-database
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
+    networks:
+      - orders_network
+    volumes:
+      - mongo_data:/data/db
+    restart: always
+
+volumes:
+  mongo_data:
+
+networks:
+  orders_network:
+    driver: bridge
