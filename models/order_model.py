@@ -6,7 +6,7 @@ from typing import List
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 import ulid
-from product_model import Product
+from models.product_model import Product
 
 
 class Order(BaseModel):

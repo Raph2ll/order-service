@@ -13,6 +13,6 @@ def get_database_connection() -> AsyncIOMotorDatabase:
     Creates and returns a connection to MongoDB.
     """
     mongo_url = os.getenv("MONGO_URL")
-    database_name = os.getenv("MONGO_DATABASE_NAME")
+    database_name = os.getenv("MONGO_DB")
     client = AsyncIOMotorClient(mongo_url)
     return client[database_name]
