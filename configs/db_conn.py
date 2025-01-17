@@ -3,16 +3,16 @@ MongoDB database connection file
 """
 
 import os
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo import MongoClient
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_database_connection() -> AsyncIOMotorDatabase:
+def get_database_connection():
     """
     Creates and returns a connection to MongoDB.
     """
-    mongo_url = os.getenv("MONGO_URL")
-    database_name = os.getenv("MONGO_DB")
-    client = AsyncIOMotorClient(mongo_url)
-    return client[database_name]
+
+    client = MongoClient("mongodb://root:example@localhost:27017/orders")
+    db = client['orders']
+    return db
