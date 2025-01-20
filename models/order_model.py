@@ -5,7 +5,6 @@ This module deals with models, specifying what each model needs and uses.
 from typing import List
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
-import ulid
 from models.product_model import Product, ProductRequest
 from models.customer_model import Customer
 
@@ -17,10 +16,6 @@ class Order(BaseModel):
     was created and last updated.
     """
 
-    order_id: str = Field(
-        default_factory=lambda: str(ulid.new()),
-        description="Unique order identifier in ULID format.",
-    )
     customer: Customer = Field(..., description="Customer details")
     products: List[Product] = Field(..., description="List of products in the order")
     active: bool = Field(default=True, description="Order status (active or inactive).")
@@ -32,9 +27,8 @@ class Order(BaseModel):
 
 class OrderRequest(BaseModel):
     """
-    The Order model contains information related to a customer's order, including the order ID,
-    customer email, a list of products, the order status, and timestamps for when the order
-    was created and last updated.
+    Represents a customer's order request, including essential details such as the customer's email 
+    and a list of products included in the order.
     """
 
     customer_email: EmailStr = Field(..., description="Valid customer email adress")
@@ -45,7 +39,7 @@ class OrderRequest(BaseModel):
 
 class CreateOrderResponse(BaseModel):
     """
-    Only
+    Represents the response for a created order, containing the unique order identifier.
     """
 
-    order_id: str = Field(..., description="Unique order identifier in ULID format.")
+    order_id: str = Field(..., description="Unique order identifier in ObjectId format.")
