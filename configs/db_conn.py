@@ -13,6 +13,6 @@ def get_database_connection():
     Creates and returns a connection to MongoDB.
     """
 
-    client = MongoClient("mongodb://root:example@localhost:27017/orders")
-    db = client['orders']
+    client = MongoClient(os.getenv("MONGO_URL"))
+    db = client[os.getenv("MONGO_DB")]
     return db
