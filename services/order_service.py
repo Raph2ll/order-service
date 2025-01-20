@@ -1,5 +1,6 @@
-import httpx
 import logging
+import os
+import httpx
 from models.order_model import Order, OrderRequest, CreateOrderResponse
 from models.product_model import Product
 from models.customer_model import Customer
@@ -14,10 +15,9 @@ class OrderService:
 
     def __init__(self, storage: OrderStorage):
         self.storage = storage
-        # Passar para o construtor dps:
         self.logger = logging.getLogger(__name__)
-        self.customer_api_url = "http://localhost:6789"
-        self.product_api_url = "http://localhost:8000"
+        self.customer_api_url = os.getenv("CUSTOMER_API_URL")
+        self.product_api_url = os.getenv("PRODUCT_API_URL")
 
     async def fetch_customer_data(self, customer_email: str):
         """
@@ -25,11 +25,13 @@ class OrderService:
         """
 
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.customer_api_url}/customers/email/{customer_email}")
+            response = await client.get(
+                f"{self.customer_api_url}/customers/email/{customer_email}"
+            )
 
             response.raise_for_status()
             customer_data = response.json()
-            self.logger.info(f"Customer_data: {customer_data}")
+            self.logger.info("Customer_data: %s", customer_data)
             if not customer_data:
                 raise ValueError("Customer not found.")
             return customer_data
@@ -40,15 +42,19 @@ class OrderService:
         """
 
         async with httpx.AsyncClient() as client:
-            response = await client.get(f"{self.product_api_url}/products/name/{product_name}")
+            response = await client.get(
+                f"{self.product_api_url}/products/name/{product_name}"
+            )
             response.raise_for_status()
             product_data = response.json()
-            self.logger.info(f"Product_data: {product_data}")
+            self.logger.info("Product_data: %s", product_data)
             if not product_data:
                 raise ValueError("Product not found.")
             return product_data
 
-    async def create_purchase_order(self, order_request: OrderRequest) -> CreateOrderResponse:
+    async def create_purchase_order(
+        self, order_request: OrderRequest
+    ) -> CreateOrderResponse:
         """
         Create a new purchase order.
         """
@@ -63,15 +69,25 @@ class OrderService:
 
         products_with_details = []
         for product in order_request.products:
-            # Esse fetch fica só no GET ?
             product_data = await self.fetch_product_data(product.name)
+
+            if product.quantity > product_data["quantity"]:
+                self.logger.error(
+                    "Requested quantity for '%s' (%d) exceeds available stock (%d).",
+                    product.name,
+                    product.quantity,
+                    product_data["quantity"],
+                )
+                raise ValueError(
+                    f"Requested quantity for '{product.name}' ({product.quantity}) exceeds available stock ({product_data['quantity']})."
+                )
+
             products_with_details.append(
                 Product(
                     id=product_data["id"],
                     name=product.name,
                     description=product_data["description"],
                     price=product_data["price"],
-                    # Lembrar de validar o quantity == | < product_data["quantity"]
                     quantity=product.quantity,
                 )
             )
@@ -86,5 +102,5 @@ class OrderService:
             updated_at=None,
         )
 
-        await self.storage.create_purchase_order(order.model_dump())
-        return order.order_id
+        result = self.storage.create_purchase_order(order.model_dump())
+        return result
