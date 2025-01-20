@@ -4,8 +4,6 @@ Module for managing Order data.
 
 from pymongo.database import Database
 from models.order_model import Order
-from typing import List
-from datetime import datetime
 
 
 class OrderStorage:
@@ -16,10 +14,10 @@ class OrderStorage:
     def __init__(self, db_conn: Database):
         self.collection = db_conn["orders"]
 
-    async def create_purchase_order(self, order_data: dict) -> str:
+    def create_purchase_order(self, order_data: Order) -> str:
         """
-        Save a new order to the MongoDB database.
+        Save a new order to the MongoDB database and return the generated _id.
         """
-        result = await self.collection.insert_one(order_data)
+        result = self.collection.insert_one(order_data)
 
         return str(result.inserted_id)
