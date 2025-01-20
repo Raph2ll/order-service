@@ -2,8 +2,7 @@
 This module deals with models, specifying what each model needs and uses.
 """
 
-from datetime import datetime
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 
 class Product(BaseModel):
@@ -21,20 +20,9 @@ class Product(BaseModel):
 
 class ProductRequest(BaseModel):
     """
-    The Product model contains information about a product that is part of an order,
-    such as its unique identifier, name, description, price, and quantity.
+    Represents a product included in an order, containing key details such as the product's name 
+    and the quantity being ordered.
     """
 
     name: str = Field(description="Product name")
     quantity: int = Field(description="Product quantity")
-
-    # @model_validator(mode="before")
-    # def check_product_quantities(self, values):
-    #     """
-    #     Validator to ensure that the quantity of products is always greater than 0.
-    #     """
-    #     products = values.get("products", [])
-    #     if any(product.get("quantity", 0) <= 0 for product in products):
-    #         raise ValueError("Product quantity must be greater than 0.")
-    #     return values
-
